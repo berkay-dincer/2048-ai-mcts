@@ -127,14 +127,6 @@ class Board:
             sys.stdout.write("\n")
         sys.stdout.write("----\n")
 
-    def _save_board_and_score(self):
-        ''' Refactor this to another class as aving states is not the responsibility
-        of the Board class
-        '''
-        uuid_token = uuid.uuid4()
-        board_tracker_dict = {'board_states': self.board_tracker, 'end_score': self.score}
-        pickle.dump(board_tracker_dict, open('BoardStates\\' + str(uuid_token), 'wb'))
-
     def _track_board_state(self):
         self.board_tracker.append(self.board)
 
