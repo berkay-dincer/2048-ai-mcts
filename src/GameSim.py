@@ -11,6 +11,12 @@ def get_random_direction():
 
 
 directions = ['up', 'down', 'right', 'left']
+
+board_state = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 2], [0, 0, 2, 4]]
+test_board = Board(board_state)
+
+next_board = test_board.simulate_next_move('right')
+
 for i in range(0, NUMBER_OF_ITERATIONS):
     board = Board()
     while True:
