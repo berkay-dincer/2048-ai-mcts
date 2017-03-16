@@ -119,5 +119,41 @@ class TestBoardMethods(unittest.TestCase):
 
         self.assertEqual(next_state, current_state)
 
+    def test_random_spawn_on_stationary_board(self):
+        current_state = [[0, 0, 0, 0],
+                         [0, 0, 0, 0],
+                         [0, 0, 2, 2],
+                         [0, 2, 4, 4]]
+
+        test_board = Board(current_state)
+        test_board.move_board('down')
+        test_board.add_random_tile()  # should not spawn a random tile
+
+        self.assertEqual(current_state, test_board.board)
+
+    def test_score_calculation(self):
+        current_state = [[0, 0, 0, 0],
+                         [0, 0, 0, 0],
+                         [0, 0, 2, 2],
+                         [0, 2, 4, 4]]
+
+        current_score = 0
+        test_board = Board(current_state)
+        test_board.move_board('down')
+        test_board_score = test_board.score
+        self.assertEqual(current_score, test_board_score)
+
+    def test_score_calculation(self):
+        current_state = [[0, 0, 0, 0],
+                         [0, 0, 2, 0],
+                         [0, 0, 2, 2],
+                         [0, 2, 4, 4]]
+
+        current_score = 0
+        test_board = Board(current_state)
+        test_board.move_board('down')
+        test_board_score = test_board.score
+        self.assertEqual(current_score+4, test_board_score)
+
 suite = unittest.TestLoader().loadTestsFromTestCase(TestBoardMethods)
 unittest.TextTestRunner(verbosity=2).run(suite)

@@ -1,28 +1,41 @@
 import random
 import sys
-
+from copy import copy, deepcopy
 
 class Board:
-    def __init__(self, board = None):
+    def __init__(self, board=None):
+        self.previous_board_state = None
         self.size = 4
         self.start_tiles = 2
         self.score = 0
         self.board_tracker = list()
         if board is None:
-            self.board = [[0 for x in range(self.size)] for y in range(self.size)]
+            self.board = [[0 for _ in range(self.size)] for _ in range(self.size)]
             for i in range(self.start_tiles):
                 self.add_random_tile()
         else:
             self.board = board
-        self._track_board_state()
+        #self._track_board_state()
 
     def add_random_tile(self):
-        if self.is_cells_available():
+        if self.is_add_random_tile():
             value_to_add = self.generate_random_value()
             available_cells = self.get_available_cells()
             rand_index = random.randint(0, len(available_cells) - 1)
             chosen_cell = available_cells[rand_index]
             self.board[chosen_cell[0]][chosen_cell[1]] = value_to_add
+
+    def is_add_random_tile(self):
+        return self.is_cells_available() and self.is_previous_state_changed()
+
+    def is_previous_state_changed(self):
+        if self.previous_board_state is None:
+            return True
+
+        if self.previous_board_state == self.board:
+            return False
+        else:
+            return True
 
     def is_cells_available(self):
         for row in self.board:
@@ -51,16 +64,16 @@ class Board:
         return value_to_add
 
     def move_board(self, direction):
+        self.previous_board_state = deepcopy(self.board)
         merged_lists = list()
         lists_to_merge = self._get_lists_to_merge(direction)
         for i in range(0, self.size):
             if direction is 'down' or direction is 'right':
-                merged_lists.append(list(reversed(self._merge(lists_to_merge[i]))))
+                merged_lists.append(list(reversed(self._merge(list(reversed(lists_to_merge[i]))))))
             else:
                 merged_lists.append(self._merge(lists_to_merge[i]))
 
         self.board = self._reassemble_vertical_lists(merged_lists, direction)
-        self._track_board_state()
 
     def move_board_random(self):
         directions = ['up', 'down', 'right', 'left']
@@ -74,7 +87,7 @@ class Board:
                 merged_lists.append(self._merge(lists_to_merge[i]))
 
         self.board = self._reassemble_vertical_lists(merged_lists, direction)
-        self._track_board_state()
+        #self._track_board_state()
 
     def _reassemble_vertical_lists(self, merged_lists, direction):
         if direction is 'down' or direction is 'up':
@@ -154,30 +167,30 @@ class Board:
         lists_to_merge = self._get_lists_to_merge(direction)
         for i in range(0, self.size):
             if direction is 'down' or direction is 'right':
-                merged_lists.append(list(reversed(self._merge(lists_to_merge[i]))))
+                merged_lists.append(list(reversed(self._merge(list(reversed(lists_to_merge[i]))))))
             else:
                 merged_lists.append(self._merge(lists_to_merge[i]))
 
         return self._reassemble_vertical_lists(merged_lists, direction)
 
     def is_match_available(self):
-        for i in range(0,len(self.board)):
+        for i in range(0, len(self.board)):
             for j in range(0, len(self.board[i])):
                 current_cell = self.board[i][j]
                 if i != 0:
-                    up_cell = self.board[i-1][j]
+                    up_cell = self.board[i - 1][j]
                     if current_cell == up_cell:
                         return True
-                if i != len(self.board[i])-1:
-                    down_cell = self.board[i+1][j]
+                if i != len(self.board[i]) - 1:
+                    down_cell = self.board[i + 1][j]
                     if current_cell == down_cell:
                         return True
                 if j != 0:
-                    left_cell = self.board[i][j-1]
+                    left_cell = self.board[i][j - 1]
                     if current_cell == left_cell:
                         return True
-                if j != len(self.board)-1:
-                    right_cell = self.board[i][j+1]
+                if j != len(self.board) - 1:
+                    right_cell = self.board[i][j + 1]
                     if current_cell == right_cell:
                         return True
         return False
