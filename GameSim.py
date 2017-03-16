@@ -1,8 +1,9 @@
-from Board import Board
-from BoardStateTracker import BoardStateTracker
 import random
 
-NUMBER_OF_ITERATIONS = 10000
+from Board import Board
+from MonteCarloTreeSearch import MonteCarloTreeSearch
+
+NUMBER_OF_ITERATIONS = 1
 
 
 def get_random_direction():
@@ -10,14 +11,20 @@ def get_random_direction():
 
 
 directions = ['up', 'down', 'right', 'left']
-state_tracker = BoardStateTracker()
 for i in range(0, NUMBER_OF_ITERATIONS):
     board = Board()
     while True:
-        board.move_board(get_random_direction())
+        result_scores = list()
+        for direction in directions:
+            next_board_state = board.simulate_next_move(direction)
+            monte_carlo_search = MonteCarloTreeSearch()
+            result_score = monte_carlo_search.pure_monte_carlo_search(next_board_state)
+            result_scores.append(result_score)
+        direction_decision = directions[result_scores.index(max(result_scores))]
+        board.move_board(direction_decision)
         board.add_random_tile()
-        if board.is_cells_available() is False:
+        if board.is_cells_available() is False and board.is_match_available() is False:
             print 'game over, score:' + str(board.score)
             board_states, score = board.get_board_states_and_score()
-            state_tracker.save_board_states(board_states, score)
+            board.print_board()
             break

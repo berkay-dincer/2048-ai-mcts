@@ -1,18 +1,19 @@
 import random
 import sys
-import pickle
-import uuid
 
 
 class Board:
-    def __init__(self):
+    def __init__(self, board = None):
         self.size = 4
         self.start_tiles = 2
         self.score = 0
         self.board_tracker = list()
-        self.board = [[0 for x in range(self.size)] for y in range(self.size)]
-        for i in range(self.start_tiles):
-            self.add_random_tile()
+        if board is None:
+            self.board = [[0 for x in range(self.size)] for y in range(self.size)]
+            for i in range(self.start_tiles):
+                self.add_random_tile()
+        else:
+            self.board = board
         self._track_board_state()
 
     def add_random_tile(self):
@@ -50,6 +51,20 @@ class Board:
         return value_to_add
 
     def move_board(self, direction):
+        merged_lists = list()
+        lists_to_merge = self._get_lists_to_merge(direction)
+        for i in range(0, self.size):
+            if direction is 'down' or direction is 'right':
+                merged_lists.append(list(reversed(self._merge(lists_to_merge[i]))))
+            else:
+                merged_lists.append(self._merge(lists_to_merge[i]))
+
+        self.board = self._reassemble_vertical_lists(merged_lists, direction)
+        self._track_board_state()
+
+    def move_board_random(self):
+        directions = ['up', 'down', 'right', 'left']
+        direction = directions[random.randint(0, len(directions) - 1)]
         merged_lists = list()
         lists_to_merge = self._get_lists_to_merge(direction)
         for i in range(0, self.size):
@@ -120,10 +135,10 @@ class Board:
             columns.append(column)
         return columns
 
-    def _print_board(self):
+    def print_board(self):
         for row in self.board:
             for value in row:
-                sys.stdout.write(str(value))
+                sys.stdout.write('|' + str(value) + '|')
             sys.stdout.write("\n")
         sys.stdout.write("----\n")
 
@@ -132,3 +147,37 @@ class Board:
 
     def get_board_states_and_score(self):
         return self.board_tracker, self.score
+
+    def simulate_next_move(self, direction):
+        """Simulates next move and returns the resulting board"""
+        merged_lists = list()
+        lists_to_merge = self._get_lists_to_merge(direction)
+        for i in range(0, self.size):
+            if direction is 'down' or direction is 'right':
+                merged_lists.append(list(reversed(self._merge(lists_to_merge[i]))))
+            else:
+                merged_lists.append(self._merge(lists_to_merge[i]))
+
+        return self._reassemble_vertical_lists(merged_lists, direction)
+
+    def is_match_available(self):
+        for i in range(0,len(self.board)):
+            for j in range(0, len(self.board[i])):
+                current_cell = self.board[i][j]
+                if i != 0:
+                    up_cell = self.board[i-1][j]
+                    if current_cell == up_cell:
+                        return True
+                if i != len(self.board[i])-1:
+                    down_cell = self.board[i+1][j]
+                    if current_cell == down_cell:
+                        return True
+                if j != 0:
+                    left_cell = self.board[i][j-1]
+                    if current_cell == left_cell:
+                        return True
+                if j != len(self.board)-1:
+                    right_cell = self.board[i][j+1]
+                    if current_cell == right_cell:
+                        return True
+        return False
