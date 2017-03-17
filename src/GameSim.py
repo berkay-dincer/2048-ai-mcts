@@ -19,12 +19,12 @@ for i in range(0, NUMBER_OF_ITERATIONS):
         for direction in directions:
             next_board_state = board.simulate_next_move(direction)
             monte_carlo_search = MonteCarloTreeSearch()
-            result_score = monte_carlo_search.pure_monte_carlo_search(next_board_state)
+            result_score = monte_carlo_search.pure_monte_carlo_search(next_board_state, board.score)
             result_scores.append(result_score)
         direction_decision = directions[result_scores.index(max(result_scores))]
         board.move_board(direction_decision)
         board.add_random_tile()
-        if board.is_cells_available() is False and board.is_match_available() is False:
+        if board.is_game_over() is True:
             print 'game over, score:' + str(board.score)
             board_states, score = board.get_board_states_and_score()
             board.print_board()

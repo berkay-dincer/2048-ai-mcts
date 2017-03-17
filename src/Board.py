@@ -2,11 +2,15 @@ import random
 import sys
 from copy import copy, deepcopy
 
+
 class Board:
-    def __init__(self, board=None):
+    def __init__(self, board=None, score=None):
         self.previous_board_state = None
         self.size = 4
         self.start_tiles = 2
+        if not score:
+            self.score = score
+
         self.score = 0
         self.board_tracker = list()
         if board is None:
@@ -15,7 +19,7 @@ class Board:
                 self.add_random_tile()
         else:
             self.board = board
-        #self._track_board_state()
+            # self._track_board_state()
 
     def add_random_tile(self):
         if self.is_add_random_tile():
@@ -74,6 +78,7 @@ class Board:
                 merged_lists.append(self._merge(lists_to_merge[i]))
 
         self.board = self._reassemble_vertical_lists(merged_lists, direction)
+        print "Current Score: " + str(self.score) + " Max Tile: " + str(self.get_max_tile())
 
     def move_board_random(self):
         directions = ['up', 'down', 'right', 'left']
@@ -87,7 +92,7 @@ class Board:
                 merged_lists.append(self._merge(lists_to_merge[i]))
 
         self.board = self._reassemble_vertical_lists(merged_lists, direction)
-        #self._track_board_state()
+        # self._track_board_state()
 
     def _reassemble_vertical_lists(self, merged_lists, direction):
         if direction is 'down' or direction is 'up':
@@ -109,12 +114,15 @@ class Board:
 
         # Double sequential tiles if same value
         for number in range(0, len(non_zeros_removed) - 1):
-            if non_zeros_removed[number] == non_zeros_removed[number + 1] and merged is False:
-                result.append(non_zeros_removed[number] * 2)
+            first_pair = non_zeros_removed[number]
+            second_pair = non_zeros_removed[number+1]
+
+            if first_pair == second_pair and first_pair != 0 and second_pair != 0 and merged is False:
+                result.append(first_pair * 2)
                 merged = True
-                self.score += non_zeros_removed[number] * 2
-            elif non_zeros_removed[number] != non_zeros_removed[number + 1] and merged is False:
-                result.append(non_zeros_removed[number])
+                self.score += first_pair * 2
+            elif first_pair != second_pair and merged is False:
+                result.append(first_pair)
             elif merged:
                 merged = False
 
@@ -194,3 +202,14 @@ class Board:
                     if current_cell == right_cell:
                         return True
         return False
+
+    def get_max_tile(self):
+        max_values = list()
+        for x in range(0, len(self.board)):
+            max_values.append(max(self.board[x]))
+        return max(max_values)
+
+    def is_game_over(self):
+        if self.is_cells_available() or self.is_match_available():
+            return False
+        return True
